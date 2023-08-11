@@ -1,27 +1,22 @@
-# [Youtube API libraries]
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError 
-# [MngoDB]
 from pymongo import MongoClient
-# [SQL library]
 import mysql.connector
-# [Dashboard library]
 import streamlit as st
-# [File handling]
 import re
 from datetime import datetime, timezone, timedelta
 import pandas as pd
 
 # Connect to MongoDB
-client = MongoClient("mongodb+srv://guvi1415:guvi1415@cluster0.zf9q7hd.mongodb.net/")
+client = MongoClient("YOUR MONGO DB CONNECTION LINK")
 db = client["youtube_data"]
-API_KEY = "AIzaSyCb8dWqD8IdhnvT2-Zc5BYb4ajT1YLrToo"
+API_KEY = "YOUR API KEY"
 
 # Connect to MySQL
 mysql_connection = mysql.connector.connect(
     host="localhost",
-    user="root",
-    password="root",
+    user="YOUR USER NAME",
+    password="YOUR SQL PASSWORD",
     database="youtube_data"
 )
 
@@ -56,7 +51,7 @@ def convert_duration(duration):
 
 
 
-# Function to get channel details, video details, and comments
+# Function to get channel details, video details, and comment details
 def get_channel_data(youtube, channel_id):
     channel_data = {}
 
@@ -198,7 +193,7 @@ def get_channel_data(youtube, channel_id):
 def migrate_data_to_mongodb(channel_id):
     youtube = build("youtube", "v3", developerKey=API_KEY)
     channel_data = get_channel_data(youtube, channel_id)
-    channels_collection = db["channel"]  # Make sure your collection name is "channel" (singular)
+    channels_collection = db["channel"]  
 
     # Check if channel data already exists
     existing_data = channels_collection.find_one({"ChannelId": channel_id})
@@ -422,7 +417,7 @@ def create_tables_in_mysql():
                 video_id VARCHAR(255),
                 comment_text TEXT,
                 comment_author VARCHAR(255),
-                comment_published_date TIMESTAMP,  -- Add a comma here
+                comment_published_date TIMESTAMP,  
                 FOREIGN KEY (video_id) REFERENCES video(video_id)
             )
         """)
