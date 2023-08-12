@@ -8,15 +8,15 @@ from datetime import datetime, timezone, timedelta
 import pandas as pd
 
 # Connect to MongoDB
-client = MongoClient("YOUR MONGO DB CONNECTION LINK")
+client = MongoClient("mongodb+srv://guvi1415:guvi1415@cluster0.zf9q7hd.mongodb.net/")
 db = client["youtube_data"]
-API_KEY = "YOUR API KEY"
+API_KEY = "AIzaSyCb8dWqD8IdhnvT2-Zc5BYb4ajT1YLrToo"
 
 # Connect to MySQL
 mysql_connection = mysql.connector.connect(
     host="localhost",
-    user="YOUR USER NAME",
-    password="YOUR SQL PASSWORD",
+    user="root",
+    password="root",
     database="youtube_data"
 )
 
@@ -262,7 +262,7 @@ def migrate_data_to_sql(channel_id):
             cursor.execute("SELECT COUNT(*) FROM channel WHERE channel_id = %s", (channel_id,))
             result = cursor.fetchone()
             if result[0] > 0:
-                st.write("Channel data already exists in PostgreSQL. Migrating updated channel data")
+                st.write("Channel data already exists in MYSQL. Migrating updated channel data")
                 # Uses "ON DELETE CASCADE" to delete all corresponding details of given channel id
                 cursor.execute("DELETE FROM channel WHERE channel_id= %s", (channel_id,))
 
@@ -287,7 +287,10 @@ def migrate_data_to_sql(channel_id):
                         channel_data["ChannelId"]
                     )
                 )
-
+                # Commit the transaction
+                mysql_connection.commit()
+                
+                
                 # Insert video data into mySQL
                 for video in channel_data["Videos"]:
                     # Convert duration to seconds (no need to convert it to a timestamp)
@@ -323,6 +326,10 @@ def migrate_data_to_sql(channel_id):
                                 video["video_id"]
                             )
                         )
+                        # Commit the transaction
+                        mysql_connection.commit()
+                
+                
                     else:
                         # Insert the new video record
                         cursor.execute(
@@ -344,6 +351,10 @@ def migrate_data_to_sql(channel_id):
                                 video["caption"]
                             )
                         )
+                        # Commit the transaction
+                        mysql_connection.commit()
+                
+                
 
                     # Insert comment data into mySQL
                     for comment in video["Comments"]:
@@ -359,7 +370,7 @@ def migrate_data_to_sql(channel_id):
                             )
                         )
 
-                mysql_connection.commit()
+                        mysql_connection.commit()
                 st.write("All data migrated from MongoDB to MySQL")
             except Exception as e:
                 mysql_connection.rollback()  # Rollback changes if an error occurs
@@ -439,7 +450,7 @@ def main():
         database="youtube_data"
     )
     create_tables_in_mysql()
-
+    
     # ============    /   Configuring Streamlit GUI   /    ============    #
 
     st.set_page_config(layout='wide')
